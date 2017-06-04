@@ -16,7 +16,7 @@ namespace WebApp
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase());
+            services.AddDbContext<RankingContext>(opt => opt.UseInMemoryDatabase());
             services.AddMvc();
         }
         
