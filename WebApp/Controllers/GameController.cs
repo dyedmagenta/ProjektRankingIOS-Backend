@@ -149,6 +149,7 @@ namespace WebApp.Controllers
 
             _context.GameItems.Remove(game);
             _context.SaveChanges();
+            _context.FixRanks();
             return new NoContentResult();
         }
 
