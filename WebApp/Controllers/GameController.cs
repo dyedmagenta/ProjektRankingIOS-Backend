@@ -55,7 +55,7 @@ namespace WebApp.Controllers
                 item.WhitePlayer = _context.PlayerItems.FirstOrDefault(e => e.Id == item.WhitePlayerId);
                 if (item.WhitePlayer == null)
                 {
-                    return BadRequest( new { Info = "White Player Not Found" });
+                    return BadRequest( new { Info = $"White Player with Id:{item.WhitePlayerId} Not Found" });
                 }
             }
             if (item.BlackPlayer == null)
@@ -63,7 +63,7 @@ namespace WebApp.Controllers
                 item.BlackPlayer = _context.PlayerItems.FirstOrDefault(e => e.Id == item.BlackPlayerId);
                 if (item.BlackPlayer == null)
                 {
-                    return BadRequest("Black Player NotFound");
+                    return BadRequest(new { Info = $"Black Player with Id:{item.BlackPlayerId} Not Found" });
                 }
             }
             if (item.Tournament == null)
@@ -71,7 +71,7 @@ namespace WebApp.Controllers
                 item.Tournament = _context.TournamentItems.FirstOrDefault(e => e.Id == item.TournamentId);
                 if (item.Tournament == null)
                 {
-                    return BadRequest("Tournament NotFound");
+                    return BadRequest(new { Info = $"Tournament with Id:{item.TournamentId} Not Found" });
                 }
             }
 
@@ -98,32 +98,34 @@ namespace WebApp.Controllers
                 return BadRequest();
             }
 
+            ResetPlayerScores(game);
+            
             var player = _context.PlayerItems.FirstOrDefault(e => e.Id == item.WhitePlayerId);
             if (player == null)
             {
-                return BadRequest("White Player NotFound");
+                return BadRequest( new { Info = $"White Player with Id:{item.WhitePlayerId} Not Found" } );
             }
             game.WhitePlayerId = item.WhitePlayerId;
             game.WhitePlayer = player;
             player = _context.PlayerItems.FirstOrDefault(e => e.Id == item.BlackPlayerId);
             if (player == null)
             {
-                return BadRequest("Black Player NotFound");
+                return BadRequest(new { Info = $"Black Player with Id:{item.BlackPlayerId} Not Found" });
             }
             game.BlackPlayerId = item.BlackPlayerId;
             game.BlackPlayer = player;
 
             game.WhiteScoreChange = item.WhiteScoreChange;
-            game.WhitePlayer.Score += game.WhiteScoreChange;
             game.BlackScoreChange = item.BlackScoreChange;
-            game.BlackPlayer.Score += game.BlackScoreChange;
 
+            SetPlayerScores(item);
+            
             game.Date = item.Date;
 
             var tournament = _context.TournamentItems.FirstOrDefault(e => e.Id == item.TournamentId);
             if (tournament == null)
             {
-                return BadRequest("Tournament doesn't exist");
+                return BadRequest(new { Info = $"Tournament with Id:{item.TournamentId} Not Found" });
             }
             game.TournamentId = item.TournamentId;
             game.Tournament = tournament;
@@ -140,12 +142,25 @@ namespace WebApp.Controllers
             var game = _context.GameItems.FirstOrDefault(x => x.Id == id);
             if (game == null)
             {
-                return BadRequest();
+                return BadRequest(new { Info = $"Game with game ID:{id} not found" });
             }
+            
+            ResetPlayerScores(game);
 
             _context.GameItems.Remove(game);
             _context.SaveChanges();
             return new NoContentResult();
+        }
+
+        private void ResetPlayerScores(Game game)
+        {
+            game.WhitePlayer.Score -= game.WhiteScoreChange;
+            game.BlackPlayer.Score -= game.BlackScoreChange;
+        }
+        private void SetPlayerScores(Game game)
+        {
+            game.WhitePlayer.Score += game.WhiteScoreChange;
+            game.BlackPlayer.Score += game.BlackScoreChange;
         }
     }
 }
