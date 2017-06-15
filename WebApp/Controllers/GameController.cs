@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,6 +68,7 @@ namespace WebApp.Controllers
             }
             if (item.Tournament == null)
             {
+                item.TournamentId = 1;
                 item.Tournament = _context.TournamentItems.FirstOrDefault(e => e.Id == item.TournamentId);
                 if (item.Tournament == null)
                 {
@@ -122,6 +123,8 @@ namespace WebApp.Controllers
             
             game.Date = item.Date;
 
+            //Dirty fix, I don't need to use tournaments at all :<
+            item.TournamentId = 1;
             var tournament = _context.TournamentItems.FirstOrDefault(e => e.Id == item.TournamentId);
             if (tournament == null)
             {
@@ -155,13 +158,39 @@ namespace WebApp.Controllers
 
         private void ResetPlayerScores(Game game)
         {
-            game.WhitePlayer.Score -= game.WhiteScoreChange;
-            game.BlackPlayer.Score -= game.BlackScoreChange;
+            var player = _context.PlayerItems.FirstOrDefault(e => e.Id == game.WhitePlayerId);
+            if (player != null)
+            {
+
+                game.WhitePlayerId = game.WhitePlayerId;
+                game.WhitePlayer = player;
+                game.WhitePlayer.Score -= game.WhiteScoreChange;
+            }
+            player = _context.PlayerItems.FirstOrDefault(e => e.Id == game.BlackPlayerId);
+            if (player != null)
+            {
+                game.BlackPlayerId = game.BlackPlayerId;
+                game.BlackPlayer = player;
+                game.BlackPlayer.Score -= game.BlackScoreChange;
+            }
         }
         private void SetPlayerScores(Game game)
         {
-            game.WhitePlayer.Score += game.WhiteScoreChange;
-            game.BlackPlayer.Score += game.BlackScoreChange;
+            var player = _context.PlayerItems.FirstOrDefault(e => e.Id == game.WhitePlayerId);
+            if (player != null)
+            {
+
+                game.WhitePlayerId = game.WhitePlayerId;
+                game.WhitePlayer = player;
+                game.WhitePlayer.Score += game.WhiteScoreChange;
+            }
+            player = _context.PlayerItems.FirstOrDefault(e => e.Id == game.BlackPlayerId);
+            if (player != null)
+            {
+                game.BlackPlayerId = game.BlackPlayerId;
+                game.BlackPlayer = player;
+                game.BlackPlayer.Score += game.BlackScoreChange;
+            }
         }
     }
 }
